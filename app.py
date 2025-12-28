@@ -1,141 +1,126 @@
 import streamlit as st
 import pandas as pd
 from supabase import create_client
+from datetime import datetime
 
-# 1. CONEXIÓN SEGURA
-try:
-    url = st.secrets["SUPABASE_URL"]
-    key = st.secrets["SUPABASE_KEY"]
-    supabase = create_client(url, key)
-except Exception as e:
-    st.error("Error de configuración: Revisa los Secrets en Streamlit Cloud.")
-    st.stop()
+# CONEXIÓN
+url = st.secrets["SUPABASE_URL"]
+key = st.secrets["SUPABASE_KEY"]
+supabase = create_client(url, key)
 
-# CONFIGURACIÓN DE PÁGINA
-st.set_page_config(page_title="Intranet Vital Ingenieros", layout="wide", page_icon="🏗️")
+st.set_page_config(page_title="Vital Ingenieros - ERP", layout="wide")
 
-# ESTILO VISUAL
+# --- UX: ESTILOS PERSONALIZADOS ---
 st.markdown("""
     <style>
-    .main { background-color: #f8f9fa; }
-    .stButton>button { background-color: #4b3621; color: white; border-radius: 5px; width: 100%; }
-    h1, h2, h3 { color: #4b3621; }
-    .stTab { font-weight: bold; }
+    [data-testid="stSidebar"] { background-color: #2c1e12; color: white; }
+    .stButton>button { border-radius: 20px; text-transform: uppercase; font-weight: bold; }
+    .status-card { background-color: white; padding: 20px; border-radius: 10px; border-left: 5px solid #4b3621; box-shadow: 2px 2px 5px rgba(0,0,0,0.1); }
     </style>
     """, unsafe_allow_html=True)
 
-# BARRA LATERAL
-st.sidebar.title("🛠️ Panel de Control")
-menu = ["Carga de Horas", "Dashboard Jefe", "⚙️ Administración del Sistema"]
-choice = st.sidebar.selectbox("Seleccione una opción", menu)
+# --- SISTEMA DE AUTENTICACIÓN SIMPLE (Simulado para UX) ---
+st.sidebar.title("🏗️ Vital ERP")
+rol_usuario = st.sidebar.selectbox("Perfil de Acceso (Simulación)", ["Administrador", "Jefe de Proyecto", "Especialista"])
+usuario_activo = st.sidebar.text_input("Su Nombre/ID", "Esteban")
 
-# --- MÓDULO 1: CARGA DE HORAS (ESPECIALISTAS) ---
-if choice == "Carga de Horas":
-    st.title("📝 Registro Diario de Actividades")
-    
-    try:
-        # Cargar datos necesarios para el formulario
-        proyectos_db = supabase.table("proyectos").select("*").eq("estado", "Activo").execute().data
-        especialistas_db = supabase.table("usuarios").select("*").eq("rol", "Especialista").execute().data
+# --- FUNCIONES DE AYUDA (CRUD) ---
+def obtener_datos(tabla):
+    return supabase.table(tabla).select("*").execute().data
+
+# --- PERFIL 1: ADMINISTRADOR (GESTIÓN TOTAL) ---
+if rol_usuario == "Administrador":
+    st.title("⚙️ Gestión Global del Sistema")
+    menu_admin = st.tabs(["👥 Usuarios", "🏗️ Proyectos", "📋 Entregables"])
+
+    with menu_admin[0]:
+        st.subheader("Control de Personal")
+        col_form, col_list = st.columns([1, 2])
         
-        if not proyectos_db or not especialistas_db:
-            st.warning("⚠️ Configuración incompleta: El administrador debe crear Proyectos y Usuarios en la pestaña de Administración.")
-        else:
-            dict_proyectos = {p['nombre']: p['id'] for p in proyectos_db}
-            lista_especialistas = [u['nombre'] for u in especialistas_db]
-            
-            with st.form("form_horas", clear_on_submit=True):
-                col_u, col_p = st.columns(2)
-                with col_u:
-                    nombre_sel = st.selectbox("Especialista", lista_especialistas)
-                with col_p:
-                    proyecto_sel = st.selectbox("Proyecto", list(dict_proyectos.keys()))
-                
-                # Filtrar Entregables por Proyecto
-                entregables_db = supabase.table("entregables").select("*").eq("proyecto_id", dict_proyectos[proyecto_sel]).execute().data
-                dict_entregables = {e['nombre_entregable']: e['id'] for e in entregables_db} if entregables_db else {}
-                
-                entregable_sel = st.selectbox("Entregable asociado", list(dict_entregables.keys()) if dict_entregables else ["Sin entregables"])
-                
-                col1, col2 = st.columns(2)
-                with col1:
-                    fecha = st.date_input("Fecha")
-                with col2:
-                    horas = st.number_input("Horas consumidas", min_value=0.5, max_value=24.0, step=0.5)
-                
-                descripcion = st.text_area("Descripción del trabajo")
-                
-                if st.form_submit_button("Guardar Reporte"):
-                    if not dict_entregables:
-                        st.error("Error: Este proyecto no tiene entregables asignados.")
+        with col_form:
+            with st.container():
+                st.markdown("**Nuevo/Editar Usuario**")
+                id_u = st.text_input("ID (dejar vacío para nuevo)")
+                nom_u = st.text_input("Nombre")
+                rol_u = st.selectbox("Rol", ["Especialista", "Jefe de Proyecto", "Administrador"])
+                c1, c2 = st.columns(2)
+                if c1.button("💾 Guardar"):
+                    payload = {"nombre": nom_u, "rol": rol_u}
+                    if id_u:
+                        supabase.table("usuarios").update(payload).eq("id", id_u).execute()
                     else:
-                        data = {
-                            "especialista_nombre": nombre_sel,
-                            "proyecto_id": dict_proyectos[proyecto_sel],
-                            "entregable_id": dict_entregables[entregable_sel],
-                            "fecha": str(fecha),
-                            "horas_consumidas": horas,
-                            "descripcion": descripcion
-                        }
-                        supabase.table("registros_horas").insert(data).execute()
-                        st.success("✅ Registro guardado correctamente.")
-    except Exception as e:
-        st.error(f"Error en el sistema: {e}")
+                        supabase.table("usuarios").insert(payload).execute()
+                    st.success("Cambio aplicado")
+                    st.rerun()
 
-# --- MÓDULO 2: DASHBOARD DEL JEFE ---
-elif choice == "Dashboard Jefe":
-    st.title("📊 Control de Gestión y Gastos")
-    
-    registros = supabase.table("registros_horas").select("*, proyectos(nombre, presupuesto_total)").execute().data
-    if registros:
-        df = pd.DataFrame(registros)
-        st.metric("Total Horas Acumuladas", f"{df['horas_consumidas'].sum()} hrs")
-        
-        c1, c2 = st.columns(2)
-        with c1:
-            st.subheader("Horas por Especialista")
-            st.bar_chart(df.groupby('especialista_nombre')['horas_consumidas'].sum())
-        with c2:
-            st.subheader("Últimos Registros")
-            st.dataframe(df[['fecha', 'especialista_nombre', 'horas_consumidas', 'descripcion']].tail(10))
-    else:
-        st.info("No hay datos para mostrar.")
+        with col_list:
+            usuarios = pd.DataFrame(obtener_datos("usuarios"))
+            if not usuarios.empty:
+                st.write("Usuarios Actuales")
+                for i, row in usuarios.iterrows():
+                    c_n, c_r, c_b = st.columns([3, 2, 1])
+                    c_n.text(row['nombre'])
+                    c_r.caption(row['rol'])
+                    if c_b.button("🗑️", key=f"del_u_{row['id']}"):
+                        supabase.table("usuarios").delete().eq("id", row['id']).execute()
+                        st.rerun()
 
-# --- MÓDULO 3: ADMINISTRACIÓN (GESTIÓN WEB) ---
-elif choice == "⚙️ Administración del Sistema":
-    st.title("⚙️ Gestión Integral de Sistema")
-    t1, t2, t3 = st.tabs(["👥 Usuarios", "🏗️ Proyectos", "📋 Entregables"])
-    
-    with t1:
-        st.subheader("Gestión de Especialistas")
-        with st.form("nuevo_usuario"):
-            u_nombre = st.text_input("Nombre Completo")
-            u_rol = st.selectbox("Rol", ["Especialista", "Jefe de Proyecto"])
-            if st.form_submit_button("Registrar Usuario"):
-                supabase.table("usuarios").insert({"nombre": u_nombre, "rol": u_rol}).execute()
-                st.success(f"Usuario {u_nombre} creado.")
-        
-        # Listado de usuarios existentes
-        u_list = supabase.table("usuarios").select("*").execute().data
-        if u_list: st.table(pd.DataFrame(u_list)[['nombre', 'rol']])
-
-    with t2:
+    with menu_admin[1]:
         st.subheader("Gestión de Proyectos")
-        with st.form("admin_proy"):
-            p_nom = st.text_input("Nombre del Proyecto")
-            p_pre = st.number_input("Presupuesto ($)", min_value=0)
-            if st.form_submit_button("Crear Proyecto"):
-                supabase.table("proyectos").insert({"nombre": p_nom, "presupuesto_total": p_pre, "estado": "Activo"}).execute()
-                st.success("Proyecto activo creado.")
+        proy_data = pd.DataFrame(obtener_datos("proyectos"))
+        st.dataframe(proy_data, use_container_width=True)
+        # Aquí se repetiría la lógica de edición/borrado similar a usuarios
 
-    with t3:
-        st.subheader("Asignación de Entregables")
-        proy_admin = supabase.table("proyectos").select("*").execute().data
-        if proy_admin:
-            dict_pa = {p['nombre']: p['id'] for p in proy_admin}
-            pa_sel = st.selectbox("Seleccione Proyecto", list(dict_pa.keys()))
-            en_nom = st.text_input("Nombre de la Entrega (ej: Supervisión Civil)")
-            en_hrs = st.number_input("Horas Estimadas", min_value=1)
-            if st.button("Asignar"):
-                supabase.table("entregables").insert({"proyecto_id": dict_pa[pa_sel], "nombre_entregable": en_nom, "horas_estimadas": en_hrs}).execute()
-                st.success("Entregable vinculado.")
+# --- PERFIL 2: JEFE DE PROYECTO (REPORTES) ---
+elif rol_usuario == "Jefe de Proyecto":
+    st.title("📊 Dashboard de Supervisión")
+    
+    # KPIs con diseño UX
+    registros = pd.DataFrame(obtener_datos("registros_horas"))
+    if not registros.empty:
+        total_h = registros['horas_consumidas'].sum()
+        col1, col2, col3 = st.columns(3)
+        col1.metric("Horas Totales", f"{total_h} h")
+        col2.metric("Presupuesto Consumido", f"${total_h * 50}") # Ejemplo de cálculo
+        
+        st.markdown("---")
+        st.subheader("Análisis de Rendimiento")
+        st.bar_chart(registros.groupby('especialista_nombre')['horas_consumidas'].sum())
+        st.write("Detalle de Registros Diarios")
+        st.table(registros.tail(20))
+
+# --- PERFIL 3: ESPECIALISTA (REGISTRO Y CONSULTA) ---
+elif rol_usuario == "Especialista":
+    st.title(f"👷 Panel de Especialista: {usuario_activo}")
+    tab_reg, tab_hist = st.tabs(["➕ Registrar Horas", "📂 Mi Historial"])
+    
+    with tab_reg:
+        proyectos = obtener_datos("proyectos")
+        if proyectos:
+            dict_p = {p['nombre']: p['id'] for p in proyectos}
+            p_sel = st.selectbox("Proyecto", list(dict_p.keys()))
+            
+            # Filtro dinámico de entregables
+            entregables = supabase.table("entregables").select("*").eq("proyecto_id", dict_p[p_sel]).execute().data
+            dict_e = {e['nombre_entregable']: e['id'] for e in entregables}
+            
+            with st.form("registro_h"):
+                e_sel = st.selectbox("Entregable", list(dict_e.keys()))
+                h_c = st.number_input("Horas", min_value=0.5, step=0.5)
+                desc = st.text_area("¿Qué hiciste hoy?")
+                if st.form_submit_button("Enviar Reporte"):
+                    supabase.table("registros_horas").insert({
+                        "especialista_nombre": usuario_activo,
+                        "proyecto_id": dict_p[p_sel],
+                        "entregable_id": dict_e[e_sel],
+                        "horas_consumidas": h_c,
+                        "descripcion": desc
+                    }).execute()
+                    st.success("Horas registradas")
+    
+    with tab_hist:
+        mis_registros = supabase.table("registros_horas").select("*").eq("especialista_nombre", usuario_activo).execute().data
+        if mis_registros:
+            st.dataframe(pd.DataFrame(mis_registros))
+        else:
+            st.info("No tienes registros previos.")
