@@ -1,52 +1,47 @@
-/* Centrar el contenedor principal */
+/* Fondo general de la página */
 .stApp {
-    background-color: #f0f2f5;
-    background-image: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    background-color: #f0f4f8;
 }
 
-/* Tarjeta de Login */
-div[data-testid="stVerticalBlock"] > div:has(input) {
-    background-color: white;
-    padding: 40px;
-    border-radius: 15px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-    max-width: 450px;
-    margin: auto;
-}
-
-/* Títulos */
-h1 {
-    color: #1a1a1a;
-    font-family: 'Inter', sans-serif;
-    text-align: center;
-    font-weight: 700 !important;
-}
-
-p {
-    text-align: center;
-    color: #666;
-}
-
-/* Botón Acceder (Color Turquesa como la imagen) */
-.stButton > button {
-    background-color: #128c7e !important;
-    color: white !important;
+/* Forzar que todos los elementos del login entren en una sola tarjeta blanca */
+[data-testid="stVerticalBlock"] > div:has(input) {
+    background-color: white !important;
+    padding: 2.5rem !important;
+    border-radius: 16px !important;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08) !important;
     border: none !important;
-    padding: 12px 24px !important;
+    margin-bottom: 0px !important;
+}
+
+/* Eliminar fondos grises de los contenedores intermedios de Streamlit */
+[data-testid="stVerticalBlock"] [data-testid="stVerticalBlock"] {
+    background-color: transparent !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+}
+
+/* Estilo de los campos de texto */
+.stTextInput input {
+    background-color: #f8fafc !important;
+    border: 1px solid #e2e8f0 !important;
     border-radius: 8px !important;
-    font-weight: 600 !important;
+    padding: 10px !important;
+}
+
+/* Botón 'Acceder' Estilo Turquesa Pro */
+.stButton > button {
+    background-color: #0d9488 !important; /* Turquesa oscuro */
+    color: white !important;
     width: 100% !important;
-    transition: all 0.3s ease;
+    border-radius: 8px !important;
+    border: none !important;
+    padding: 0.6rem !important;
+    font-size: 1rem !important;
+    font-weight: 600 !important;
+    margin-top: 1rem !important;
 }
 
 .stButton > button:hover {
-    background-color: #075e54 !important;
-    box-shadow: 0 4px 12px rgba(18, 140, 126, 0.3);
-}
-
-/* Inputs */
-.stTextInput > div > div > input {
-    border-radius: 8px !important;
-    border: 1px solid #e0e0e0 !important;
-    background-color: #f8f9fa !important;
+    background-color: #0f766e !important;
+    border: none !important;
 }
