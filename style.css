@@ -1,36 +1,19 @@
-/* Fondo gris claro para resaltar la tarjeta */
-.stApp {
-    background-color: #f1f5f9;
+/* Estilo para la barra lateral (Sidebar) */
+[data-testid="stSidebar"] {
+    background-color: #ffffff;
+    border-right: 1px solid #e2e8f0;
 }
 
-/* Unificar todo el formulario en una TARJETA BLANCA */
-[data-testid="stVerticalBlock"] > div:has(input) {
-    background-color: white !important;
-    padding: 2.5rem !important;
-    border-radius: 20px !important;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.05) !important;
-    max-width: 450px;
-    margin: auto;
+/* Estilo de los botones de radio en el menú */
+[data-testid="stSidebar"] .stRadio > div {
+    background-color: transparent !important;
+    padding: 0 !important;
+    gap: 10px;
 }
 
-/* Botón Estilo Turquesa (Como en la imagen de referencia) */
-.stButton > button {
-    background-color: #128c7e !important;
-    color: white !important;
-    border-radius: 10px !important;
-    border: none !important;
-    height: 3em !important;
-    font-weight: 600 !important;
-    transition: 0.3s;
-}
-
-.stButton > button:hover {
-    background-color: #0d7368 !important;
-    box-shadow: 0 4px 12px rgba(18, 140, 126, 0.2);
-}
-
-/* Títulos y fuentes */
-h1 {
-    font-weight: 800 !important;
-    color: #1e293b;
+/* Cambiar color del texto seleccionado en el menú */
+[data-testid="stSidebar"] label {
+    color: #475569 !important;
+    font-weight: 500 !important;
+    cursor: pointer;
 }
