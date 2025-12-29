@@ -1,47 +1,36 @@
-/* Fondo general de la página */
+/* Fondo gris claro para resaltar la tarjeta */
 .stApp {
-    background-color: #f0f4f8;
+    background-color: #f1f5f9;
 }
 
-/* Forzar que todos los elementos del login entren en una sola tarjeta blanca */
+/* Unificar todo el formulario en una TARJETA BLANCA */
 [data-testid="stVerticalBlock"] > div:has(input) {
     background-color: white !important;
     padding: 2.5rem !important;
-    border-radius: 16px !important;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.08) !important;
-    border: none !important;
-    margin-bottom: 0px !important;
+    border-radius: 20px !important;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.05) !important;
+    max-width: 450px;
+    margin: auto;
 }
 
-/* Eliminar fondos grises de los contenedores intermedios de Streamlit */
-[data-testid="stVerticalBlock"] [data-testid="stVerticalBlock"] {
-    background-color: transparent !important;
-    padding: 0 !important;
-    box-shadow: none !important;
-}
-
-/* Estilo de los campos de texto */
-.stTextInput input {
-    background-color: #f8fafc !important;
-    border: 1px solid #e2e8f0 !important;
-    border-radius: 8px !important;
-    padding: 10px !important;
-}
-
-/* Botón 'Acceder' Estilo Turquesa Pro */
+/* Botón Estilo Turquesa (Como en la imagen de referencia) */
 .stButton > button {
-    background-color: #0d9488 !important; /* Turquesa oscuro */
+    background-color: #128c7e !important;
     color: white !important;
-    width: 100% !important;
-    border-radius: 8px !important;
+    border-radius: 10px !important;
     border: none !important;
-    padding: 0.6rem !important;
-    font-size: 1rem !important;
+    height: 3em !important;
     font-weight: 600 !important;
-    margin-top: 1rem !important;
+    transition: 0.3s;
 }
 
 .stButton > button:hover {
-    background-color: #0f766e !important;
-    border: none !important;
+    background-color: #0d7368 !important;
+    box-shadow: 0 4px 12px rgba(18, 140, 126, 0.2);
+}
+
+/* Títulos y fuentes */
+h1 {
+    font-weight: 800 !important;
+    color: #1e293b;
 }
