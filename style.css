@@ -1,19 +1,43 @@
-/* Estilo para la barra lateral (Sidebar) */
-[data-testid="stSidebar"] {
-    background-color: #ffffff;
-    border-right: 1px solid #e2e8f0;
+/* Contenedor de la cuadrícula de empleados */
+.employee-card {
+    background-color: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+    transition: transform 0.2s ease;
 }
 
-/* Estilo de los botones de radio en el menú */
-[data-testid="stSidebar"] .stRadio > div {
-    background-color: transparent !important;
-    padding: 0 !important;
-    gap: 10px;
+.employee-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.05);
 }
 
-/* Cambiar color del texto seleccionado en el menú */
-[data-testid="stSidebar"] label {
-    color: #475569 !important;
-    font-weight: 500 !important;
-    cursor: pointer;
+/* Badge de estado "Activo" */
+.status-badge {
+    background-color: #22c55e;
+    color: white;
+    padding: 2px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    float: right;
+}
+
+/* Estilos de texto dentro de la tarjeta */
+.employee-name {
+    font-weight: 700;
+    color: #1e293b;
+    font-size: 1.1rem;
+    margin-bottom: 10px;
+}
+
+.employee-info {
+    color: #64748b;
+    font-size: 0.9rem;
+    margin: 5px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
