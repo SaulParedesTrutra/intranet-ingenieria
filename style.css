@@ -1,0 +1,52 @@
+/* Centrar el contenedor principal */
+.stApp {
+    background-color: #f0f2f5;
+    background-image: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+}
+
+/* Tarjeta de Login */
+div[data-testid="stVerticalBlock"] > div:has(input) {
+    background-color: white;
+    padding: 40px;
+    border-radius: 15px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    max-width: 450px;
+    margin: auto;
+}
+
+/* Títulos */
+h1 {
+    color: #1a1a1a;
+    font-family: 'Inter', sans-serif;
+    text-align: center;
+    font-weight: 700 !important;
+}
+
+p {
+    text-align: center;
+    color: #666;
+}
+
+/* Botón Acceder (Color Turquesa como la imagen) */
+.stButton > button {
+    background-color: #128c7e !important;
+    color: white !important;
+    border: none !important;
+    padding: 12px 24px !important;
+    border-radius: 8px !important;
+    font-weight: 600 !important;
+    width: 100% !important;
+    transition: all 0.3s ease;
+}
+
+.stButton > button:hover {
+    background-color: #075e54 !important;
+    box-shadow: 0 4px 12px rgba(18, 140, 126, 0.3);
+}
+
+/* Inputs */
+.stTextInput > div > div > input {
+    border-radius: 8px !important;
+    border: 1px solid #e0e0e0 !important;
+    background-color: #f8f9fa !important;
+}
