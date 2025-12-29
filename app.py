@@ -1,51 +1,44 @@
-import streamlit as st
-import pandas as pd
-from supabase import create_client
-import os
-
-# ... (Mantener configuración de página y carga de CSS igual) ...
-
-# --- SI ESTÁ AUTENTICADO ---
-if st.session_state['autenticado']:
-    user = st.session_state['user_data']
-    
-    # BARRA LATERAL (SIDEBAR)
-    st.sidebar.image("https://cdn-icons-png.flaticon.com/512/6195/6195699.png", width=100)
-    st.sidebar.title(f"Bienvenido, {user['nombre']}")
-    st.sidebar.markdown(f"**Rol:** {user['rol']}")
-    st.sidebar.write("---")
-
-    # Definir opciones según el Rol
-    if user['rol'] == "Administrador":
-        opciones = ["🏠 Inicio", "⚙️ Configuración", "📂 Gestión de Proyectos", "👥 Empleados", "🏢 Clientes"]
-    else:
-        # Opciones limitadas para especialistas o jefes de proyecto
-        opciones = ["🏠 Inicio", "📂 Gestión de Proyectos"]
-
-    menu = st.sidebar.radio("Navegación", opciones)
-
-    # BOTÓN DE CIERRE DE SESIÓN AL FINAL
-    if st.sidebar.button("Cerrar Sesión"):
-        st.session_state.update({'autenticado': False, 'user_data': None})
-        st.rerun()
-
-    # --- LÓGICA DE LAS VENTANAS ---
-    if menu == "🏠 Inicio":
-        st.title("Panel Principal")
-        st.write("Seleccione una opción en el menú de la izquierda para comenzar.")
+elif menu == "👥 Empleados":
+        st.markdown("<h2 style='margin-bottom:0;'>👥 Gestión de Empleados</h2>", unsafe_allow_html=True)
+        st.markdown("<p style='color:gray;'>Administración del equipo y permisos</p>", unsafe_allow_html=True)
         
-    elif menu == "⚙️ Configuración":
-        st.title("⚙️ Configuración del Sistema")
-        st.info("Opciones de personalización y ajustes generales.")
+        # Fila de acciones superiores
+        col_busqueda, col_nuevo = st.columns([3, 1])
+        with col_nuevo:
+            if st.button("+ Nuevo Empleado"):
+                # Aquí podrías abrir un modal o formulario de registro
+                st.info("Formulario de registro en desarrollo")
 
-    elif menu == "📂 Gestión de Proyectos":
-        st.title("📂 Gestión de Proyectos")
-        # Aquí va tu código actual de visualización de proyectos
+        st.write("---")
 
-    elif menu == "👥 Empleados":
-        st.title("👥 Gestión de Empleados")
-        # Aquí va tu código de "Gestión Usuarios" que teníamos antes
+        # Obtener empleados de Supabase
+        usuarios = supabase.table("usuarios").select("*").execute().data
 
-    elif menu == "🏢 Clientes":
-        st.title("🏢 Base de Datos de Clientes")
-        st.write("Listado y registro de clientes de Vital.pe")
+        if usuarios:
+            # Crear una cuadrícula de 3 columnas
+            cols = st.columns(3)
+            
+            for i, u in enumerate(usuarios):
+                # Seleccionar la columna correspondiente (0, 1 o 2)
+                with cols[i % 3]:
+                    st.markdown(f"""
+                    <div class="employee-card">
+                        <span class="status-badge">activo</span>
+                        <div class="employee-name">{u['nombre']}</div>
+                        <div class="employee-info">✉️ {u['correo']}</div>
+                        <div class="employee-info">👤 {u['rol']}</div>
+                        <div class="employee-info">📅 Ingreso: 2024</div>
+                    </div>
+                    """, unsafe_allow_html=True)
+                    
+                    # Botones de acción debajo de cada tarjeta HTML
+                    c_edit, c_del, c_empty = st.columns([1, 1, 2])
+                    with c_edit:
+                        st.button("📝", key=f"edit_{u['id']}")
+                    with c_del:
+                        if st.button("🗑️", key=f"del_{u['id']}"):
+                            # Lógica para eliminar de Supabase
+                            supabase.table("usuarios").delete().eq("id", u['id']).execute()
+                            st.rerun()
+        else:
+            st.info("No hay empleados registrados aún.")
